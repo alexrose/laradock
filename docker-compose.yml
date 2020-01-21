@@ -1,18 +1,20 @@
 version: '3.7'
 services:
     nginx:
-        image: nginx:alpine
-        container_name: nginx
+        image: ${NGINX_VERSION}
+        container_name: ${DOCKER_NAME}-nginx
         volumes:
             - "./src:/var/www/html"
             - "./etc/nginx/default.conf:/etc/nginx/conf.d/default.conf"
             - "./etc/nginx/default.template.conf:/etc/nginx/conf.d/default.template"
+            - "./data/nginx/logs:/var/log/nginx"
         ports:
             - ${NGINX_HTTP_PORT}:80
             - ${NGINX_SSL_PORT}:443
         tty: true
         environment:
             - APP_KEY=${APP_KEY}
+            - DOCKER_NAME=${DOCKER_NAME}
             - NGINX_HOST=${NGINX_HOST}
             - NGINX_HTTP_PORT=${NGINX_HTTP_PORT}
             - MYSQL_HOST=${MYSQL_HOST}
@@ -25,7 +27,7 @@ services:
             - REDIS_PASSWORD=${REDIS_PASSWORD}
         command: /bin/sh -c "
             envsubst '$$NGINX_HOST' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf
-            && envsubst '$$NGINX_HOST,$$NGINX_HTTP_PORT,$$MYSQL_HOST,$$MYSQL_PORT,$$MYSQL_DATABASE,$$MYSQL_USER,$$MYSQL_PASSWORD,$$APP_KEY,$$REDIS_HOST,$$REDIS_PORT,$$REDIS_PASSWORD' < /var/www/html/.env.docker > /var/www/html/.env
+            && envsubst '$$DOCKER_NAME,$$NGINX_HOST,$$NGINX_HTTP_PORT,$$MYSQL_HOST,$$MYSQL_PORT,$$MYSQL_DATABASE,$$MYSQL_USER,$$MYSQL_PASSWORD,$$APP_KEY,$$REDIS_HOST,$$REDIS_PORT,$$REDIS_PASSWORD' < /var/www/html/.env.docker > /var/www/html/.env
             && nginx -g 'daemon off;'
             "
         restart: unless-stopped
@@ -37,8 +39,8 @@ services:
             - nginx-proxy
 
     php:
-        image: php:${PHP_VERSION}
-        container_name: php
+        image: ${PHP_VERSION}
+        container_name: ${DOCKER_NAME}-php
         restart: unless-stopped
         tty: true
         volumes:
@@ -51,12 +53,10 @@ services:
             - laravel
 
     mysql:
-        image: mysql:${MYSQL_VERSION}
-        container_name: mysql
+        image: ${MYSQL_VERSION}
+        container_name: ${DOCKER_NAME}-mysql
         restart: unless-stopped
         tty: true
-        env_file:
-            - ".env"
         environment:
             - MYSQL_DATABASE=${MYSQL_DATABASE}
             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -71,8 +71,8 @@ services:
             - laravel
 
     redis:
-        image: redis
-        container_name: redis
+        image: ${REDIS_VERSION}
+        container_name: ${DOCKER_NAME}-redis
         ports:
             - ${REDIS_PORT}:6379
         restart: unless-stopped
@@ -80,8 +80,8 @@ services:
             - laravel
 
     composer:
-        image: "composer"
-        container_name: composer
+        image: ${COMPOSER_VERSION}
+        container_name: ${DOCKER_NAME}-composer
         volumes:
             - "./src:/app"
         command: install
