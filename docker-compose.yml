@@ -27,7 +27,7 @@ services:
             - REDIS_PASSWORD=${REDIS_PASSWORD}
         command: /bin/sh -c "
             envsubst '$$NGINX_HOST' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf
-            && envsubst '$$DOCKER_NAME,$$NGINX_HOST,$$NGINX_HTTP_PORT,$$MYSQL_HOST,$$MYSQL_PORT,$$MYSQL_DATABASE,$$MYSQL_USER,$$MYSQL_PASSWORD,$$APP_KEY,$$REDIS_HOST,$$REDIS_PORT,$$REDIS_PASSWORD' < /var/www/html/.env.docker > /var/www/html/.env
+            && [ ! -f /var/www/html/.env ] && envsubst '$$DOCKER_NAME,$$NGINX_HOST,$$NGINX_HTTP_PORT,$$MYSQL_HOST,$$MYSQL_PORT,$$MYSQL_DATABASE,$$MYSQL_USER,$$MYSQL_PASSWORD,$$APP_KEY,$$REDIS_HOST,$$REDIS_PORT,$$REDIS_PASSWORD' < /var/www/html/.env.docker > /var/www/html/.env
             && nginx -g 'daemon off;'
             "
         restart: unless-stopped
