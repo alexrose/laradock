@@ -4,4 +4,4 @@ docker run -it --rm --name certbot -v ${PWD}"/data/certs:/etc/letsencrypt" certb
 
 docker run -it --rm --name certbot --env-file=.env -v ${PWD}"/data/certs:/etc/letsencrypt" certbot/certbot certonly --manual --preferred-challenges dns-01 --agree-tos -d ${NGINX_HOST} --server https://acme-v02.api.letsencrypt.org/directory
 
-
+docker run -it --rm --name certbot -v ${PWD}"/data/certs:/etc/letsencrypt" certbot/certbot certonly --manual --preferred-challenges dns-01 --agree-tos -d "dev.itcv.ro" --server https://acme-v02.api.letsencrypt.org/directory

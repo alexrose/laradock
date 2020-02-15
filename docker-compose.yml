@@ -70,6 +70,19 @@ services:
         networks:
             - laravel
 
+    phpmyadmin:
+        image: ${PMA_VERSION}
+        container_name: ${DOCKER_NAME}-pma
+        depends_on:
+            - mysql
+        restart: unless-stopped
+        ports:
+            - ${PMA_PORT}:80
+        external_links:
+            - mysql:db
+        networks:
+            - laravel
+
     redis:
         image: ${REDIS_VERSION}
         container_name: ${DOCKER_NAME}-redis
